@@ -6,5 +6,8 @@
   "scripts": {
     "build": "node scripts/build-index.js",
     "check": "node scripts/build-index.js --check"
+  },
+  "dependencies": {
+    "googleapis": "^144.0.0"
   }
 }
