@@ -7,9 +7,9 @@ const SITE = {
   articles: [
     {
       slug: 'founding-vision',
-      title: '從台灣出發，與世界建立連結——「人與社會」教師社團的成立願景',
+      title: '115–116 學年工作小組工作計畫',
       date: '2026-07-12',
-      summary: '從共同備課、時事對話與閱讀出發，建立立足台灣、理解世界的人文社會教學共同體。',
+      summary: '原倡議之工作圖像（小組成立時的核心精神與理想狀態）',
       href: 'article.html#founding-vision'
     }
   ]
