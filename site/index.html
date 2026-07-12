@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>人與社會｜教師社團</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">HUMAN &amp; SOCIETY</p>
+      <h1>人與社會</h1>
+      <p class="subtitle">教師社團 · 從台灣出發，與世界建立連結</p>
+    </header>
+    <section class="intro">
+      <p>閱讀我們關於台灣、世界、媒體與公共生活的共同學習紀錄。</p>
+    </section>
+    <section id="articles" class="articles" aria-label="文章列表"></section>
+    <footer>人與社會｜教師社團</footer>
+  </main>
+  <script src="data.js"></script>
+  <script>
+    const { SITE } = window.HUMAN_AND_SOCIETY;
+    document.getElementById('articles').innerHTML = SITE.articles.map((a, i) => `
+      <a class="article-card" href="${a.href}">
+        <span class="number">${String(i + 1).padStart(2, '0')}</span>
+        <span><time>${a.date}</time><h2>${a.title}</h2><p>${a.summary}</p></span>
+      </a>`).join('');
+  </script>
+</body>
+</html>
