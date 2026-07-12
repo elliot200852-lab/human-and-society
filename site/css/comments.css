@@ -1,94 +1,96 @@
 /* comments.css — 人與社會｜教師社團 · 留言 widget 樣式
-   注入於文章 standalone HTML；自帶 scope（.hs-c）與 fallback 變數，
-   不依賴文章內嵌 CSS 即可正常顯示。accent = 靛青 --hs-indigo。 */
+   設計原則：widget 繼承「所在文章」的設計 token，不自選配色。
+   文章是固定的暖色米白 Waldorf 版面（--paper / --ink / --accent / --rule），
+   故 widget 直接吃這些變數（附 fallback），且**不做 dark mode**——
+   文章永遠是亮色，widget 跟著亮，避免深色文字落在米白紙上而看不見。 */
 
 #hs-comments {
-  --hs-indigo: #3d4d68;
-  --hs-indigo-soft: #eef1f6;
-  --hs-ink: #2b2f36;
-  --hs-muted: #6b7280;
-  --hs-line: #e3e6ec;
-  --hs-bg: #ffffff;
+  /* 直接繼承文章 tokens；文章沒有時用其實際值當 fallback */
+  --c-paper:      var(--paper,   #fdfcf7);  /* 頁面米白 */
+  --c-paper-soft: var(--paper-2, #f6f0e4);  /* 較深米白：輸入框/卡片底 */
+  --c-ink:        var(--ink,     #1a1a1a);  /* 主要文字：深、清楚 */
+  --c-ink-2:      var(--ink-2,   #4a4a4a);  /* 次要文字 */
+  --c-muted:      var(--ink-muted,#6a6a6a); /* 弱化：時間/說明 */
+  --c-faint:      var(--ink-faint,#8a7a5a); /* 暖褐弱化 */
+  --c-accent:     var(--accent,  #3d4d68);  /* 靛青 accent */
+  --c-rule:       var(--rule,    #d4c4b0);  /* 暖色分隔線 */
+  --c-rule-2:     var(--rule-2,  #b8a28a);
+  --c-font-sans:  var(--font-sans,  "Noto Sans TC", "PingFang TC", sans-serif);
+  --c-font-serif: var(--font-serif, "Noto Serif TC", "PingFang TC", serif);
+
   max-width: 46rem;
-  margin: 3.5rem auto 4rem;
+  margin: 3rem auto 3.5rem;
   padding: 0 1.25rem;
-  font-family: -apple-system, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-  color: var(--hs-ink);
+  font-family: var(--c-font-sans);
+  color: var(--c-ink);
+  -webkit-text-size-adjust: 100%;
 }
 
+/* ── 標題（比照文章 serif 標題調性）── */
 .hs-c-title {
-  font-size: 1.4rem;
+  font-family: var(--c-font-serif);
+  font-size: 1.45rem;
   font-weight: 700;
-  color: var(--hs-indigo);
-  border-top: 2px solid var(--hs-indigo);
-  padding-top: 1.5rem;
-  margin: 0 0 .35rem;
+  color: var(--c-accent);
+  border-top: 1px solid var(--c-rule);
+  padding-top: 1.6rem;
+  margin: 0 0 .4rem;
+  letter-spacing: .02em;
 }
 
 .hs-c-note {
-  font-size: .86rem;
-  color: var(--hs-muted);
-  margin: 0 0 1.25rem;
-  line-height: 1.6;
+  font-size: .88rem;
+  color: var(--c-muted);
+  margin: 0 0 1.35rem;
+  line-height: 1.7;
 }
 
-/* ── auth / form ── */
-.hs-c-auth { margin-bottom: 2rem; }
-
-.hs-c-btn {
-  display: inline-block;
-  background: var(--hs-indigo);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: .6rem 1.25rem;
-  font-size: .92rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity .15s ease;
-}
-.hs-c-btn:hover { opacity: .88; }
-.hs-c-btn:disabled { opacity: .5; cursor: default; }
+/* ── 登入 / 表單 ── */
+.hs-c-auth { margin-bottom: 2.25rem; }
 
 .hs-c-me {
   display: flex;
   align-items: center;
   gap: .75rem;
-  margin-bottom: .6rem;
-  font-size: .9rem;
+  margin-bottom: .7rem;
+  font-size: .92rem;
 }
-.hs-c-me-name { font-weight: 600; }
+.hs-c-me-name { font-weight: 600; color: var(--c-ink); }
 
 .hs-c-link {
   background: none;
   border: none;
-  color: var(--hs-muted);
-  font-size: .82rem;
+  color: var(--c-muted);
+  font-size: .84rem;
   cursor: pointer;
   text-decoration: underline;
+  text-underline-offset: 2px;
   padding: 0;
 }
-.hs-c-link:hover { color: var(--hs-indigo); }
+.hs-c-link:hover { color: var(--c-accent); }
 
-.hs-c-form { display: flex; flex-direction: column; gap: .55rem; }
+.hs-c-form { display: flex; flex-direction: column; gap: .6rem; }
 
+/* 輸入框：暖色米白淡底 + 暖色細框（不用黑、不用純白，融進紙面）*/
 .hs-c-textarea {
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid var(--hs-line);
-  border-radius: 8px;
-  padding: .7rem .85rem;
-  font: inherit;
-  font-size: .95rem;
-  line-height: 1.6;
+  background: var(--c-paper-soft);
+  border: 1px solid var(--c-rule);
+  border-radius: 10px;
+  padding: .8rem .95rem;
+  font-family: var(--c-font-sans);
+  font-size: 1rem;
+  line-height: 1.7;
   resize: vertical;
-  color: var(--hs-ink);
-  background: var(--hs-bg);
+  color: var(--c-ink);
 }
+.hs-c-textarea::placeholder { color: var(--c-faint); }
 .hs-c-textarea:focus {
   outline: none;
-  border-color: var(--hs-indigo);
-  box-shadow: 0 0 0 3px var(--hs-indigo-soft);
+  border-color: var(--c-accent);
+  background: var(--c-paper);
+  box-shadow: 0 0 0 3px rgba(61, 77, 104, .12);
 }
 
 .hs-c-form-row {
@@ -97,59 +99,67 @@
   justify-content: space-between;
   gap: 1rem;
 }
-.hs-c-count { font-size: .8rem; color: var(--hs-muted); }
+.hs-c-count { font-size: .82rem; color: var(--c-muted); }
+
+/* 送出鈕：柔和的暖框幽靈鈕（不搶眼、hover 才填色）*/
+.hs-c-btn {
+  display: inline-block;
+  background: transparent;
+  color: var(--c-accent);
+  border: 1px solid var(--c-accent);
+  border-radius: 9px;
+  padding: .55rem 1.25rem;
+  font-family: var(--c-font-sans);
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.hs-c-btn:hover { background: var(--c-accent); color: var(--c-paper); }
+.hs-c-btn:disabled { opacity: .45; cursor: default; }
+.hs-c-signin { padding: .6rem 1.4rem; }
 
 .hs-c-alert {
   margin: .6rem 0 0;
-  font-size: .84rem;
-  color: #b4232a;
+  font-size: .86rem;
+  color: #a23b3b;
 }
 
-/* ── list ── */
+/* ── 留言列表 ── */
 .hs-c-list { list-style: none; margin: 0; padding: 0; }
 
 .hs-c-empty {
-  color: var(--hs-muted);
-  font-size: .9rem;
+  color: var(--c-muted);
+  font-size: .92rem;
   padding: 1rem 0;
 }
 
 .hs-c-item {
-  border-top: 1px solid var(--hs-line);
-  padding: 1rem 0 .9rem;
+  border-top: 1px solid var(--c-rule);
+  padding: 1.1rem 0 1rem;
 }
 .hs-c-item:first-child { border-top: none; }
 
 .hs-c-item-head {
   display: flex;
   align-items: baseline;
-  gap: .6rem;
-  margin-bottom: .35rem;
+  gap: .65rem;
+  margin-bottom: .4rem;
 }
-.hs-c-item-name { font-weight: 600; font-size: .92rem; }
-.hs-c-item-time { font-size: .78rem; color: var(--hs-muted); }
+.hs-c-item-name { font-weight: 600; font-size: .95rem; color: var(--c-ink); }
+.hs-c-item-time { font-size: .8rem; color: var(--c-muted); }
 
 .hs-c-item-body {
-  font-size: .95rem;
-  line-height: 1.7;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--c-ink);
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .hs-c-hide {
-  margin-top: .5rem;
+  margin-top: .55rem;
   display: inline-block;
+  color: var(--c-faint);
 }
-
-/* ── dark mode（若文章頁 prefers dark；widget 仍可讀） ── */
-@media (prefers-color-scheme: dark) {
-  #hs-comments {
-    --hs-indigo: #9fb2d6;
-    --hs-indigo-soft: #232a37;
-    --hs-ink: #e6e8ec;
-    --hs-muted: #9aa2b1;
-    --hs-line: #333a47;
-    --hs-bg: #1b1e25;
-  }
-  .hs-c-btn { color: #14171d; }
-}
+.hs-c-hide:hover { color: var(--c-accent); }
