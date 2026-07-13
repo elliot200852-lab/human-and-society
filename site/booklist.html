@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+  <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+  <title>推薦書單 · 人與社會</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/booklist.css" />
+</head>
+<body>
+  <div class="hs-bl-page">
+
+    <header class="hs-bl-topbar">
+      <a href="index.html">← 回主頁</a>
+      <p class="hs-bl-crumb">推薦書單</p>
+    </header>
+
+    <header class="hs-bl-masthead">
+      <p class="hs-bl-kicker">Ci-Xin Waldorf · Teacher Circle</p>
+      <h1 class="hs-bl-title">推薦書單</h1>
+      <p class="hs-bl-sub">Recommended Reading</p>
+      <p class="hs-bl-intro">人與社會工作小組共同推薦的書籍，依審核通過先後收於下方。登入後歡迎推薦你想與大家分享的一本書。</p>
+    </header>
+
+    <section aria-labelledby="hs-bl-list-heading">
+      <h2 id="hs-bl-list-heading" class="hs-bl-section-label">書單 · Booklist</h2>
+      <div id="hs-bl-list" class="hs-bl-list">
+        <p class="hs-bl-empty">載入中…</p>
+      </div>
+    </section>
+
+    <section class="hs-bl-submit" aria-labelledby="hs-bl-submit-heading">
+      <h2 id="hs-bl-submit-heading" class="hs-bl-section-label">推薦一本書</h2>
+      <p class="hs-bl-submit-note">
+        可以只填書名＋作者，或直接貼一個網路連結（書店、出版社頁面都可以）；
+        送出後系統會自動整理書籍資料，審核後就會出現在上方書單。
+      </p>
+      <div id="hs-bl-auth"></div>
+    </section>
+
+    <section class="hs-bl-admin" id="hs-bl-admin" hidden aria-labelledby="hs-bl-admin-heading">
+      <h2 id="hs-bl-admin-heading" class="hs-bl-section-label">待審書單（僅管理者可見）</h2>
+      <ul id="hs-bl-pending-list" class="hs-bl-pending-list"></ul>
+    </section>
+
+    <div class="hs-bl-back">
+      <a href="index.html">↑ 回到主頁目錄</a>
+    </div>
+
+    <footer class="hs-bl-colophon">
+      慈心華德福高中
+      <span class="en">Ci-Xin Waldorf School · Yilan</span>
+    </footer>
+  </div>
+
+  <script src="js/booklist-data.js"></script>
+  <script type="module" src="js/booklist.js"></script>
+  <script src="js/toolbar.js" defer></script>
+</body>
+</html>

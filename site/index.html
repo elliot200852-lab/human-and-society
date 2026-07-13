@@ -81,6 +81,29 @@
       font-weight: 500;
     }
 
+    /* ---- quicklinks ---- */
+    .quicklinks {
+      display: flex;
+      justify-content: flex-end;
+      padding-top: var(--sp-4);
+    }
+    .quicklinks-link {
+      font-family: var(--font-sans);
+      font-size: var(--fs-eyebrow);
+      letter-spacing: var(--ls-caps);
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      padding: 8px 18px;
+      border: 1px solid var(--rule-2);
+      border-radius: 999px;
+      transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+    }
+    .quicklinks-link:hover {
+      background: var(--accent);
+      color: var(--paper);
+      border-color: var(--accent);
+    }
+
     /* ---- tagline strip ---- */
     .tagline {
       padding: var(--sp-9) 0 var(--sp-11);
@@ -344,6 +367,10 @@
         <div><span class="label">Updated</span><span class="val" id="metaUpdated">2026 / 07 / 12</span></div>
       </div>
     </header>
+
+    <nav class="quicklinks" aria-label="快速連結">
+      <a class="quicklinks-link" href="booklist.html">推薦書單 <span aria-hidden="true">→</span></a>
+    </nav>
 
     <p class="tagline">
       <span class="lead-line">從台灣出發，與世界建立連結</span>

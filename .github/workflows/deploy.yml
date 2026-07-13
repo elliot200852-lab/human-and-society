@@ -10,6 +10,8 @@ on:
       - 'package-lock.json'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
+  schedule:
+    - cron: '0 1 * * *' # 台北 09:00 — 每日書單 enrichment + rebuild
 
 permissions:
   contents: read
@@ -34,11 +36,19 @@ jobs:
           check-latest: true
           cache: npm
       - run: npm ci
+      - name: Enrich book recommendations (Firestore hs-book-recs)
+        env:
+          FIRESTORE_SA_KEY: ${{ secrets.FIRESTORE_SA_KEY }}
+        run: node scripts/enrich-book-recs.js
       - name: Build site from public source and Drive
         env:
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_DRIVE_SA_KEY }}
           HUMAN_AND_SOCIETY_DRIVE_FOLDER_ID: ${{ vars.HUMAN_AND_SOCIETY_DRIVE_FOLDER_ID }}
         run: npm run build
+      - name: Build booklist static data (Firestore hs-book-recs, approved only)
+        env:
+          FIRESTORE_SA_KEY: ${{ secrets.FIRESTORE_SA_KEY }}
+        run: node scripts/build-booklist.js
       - uses: actions/upload-pages-artifact@v5
         with:
           path: output

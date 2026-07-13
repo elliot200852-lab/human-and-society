@@ -309,17 +309,20 @@ function writeBuildReport(report, totalCategories, totalFiles) {
 }
 
 function copyStaticAssets() {
-  for (const f of ['index.html', 'category.html', 'styles.css', 'robots.txt']) {
+  for (const f of ['index.html', 'category.html', 'booklist.html', 'styles.css', 'robots.txt']) {
     fs.copyFileSync(path.join(SITE_DIR, f), path.join(OUTPUT_DIR, f));
   }
   // js/toolbar.js（index/category 以 <script src> 引用）＋ js/comments.js（文章頁注入）
+  // ＋ js/booklist.js（推薦書單頁）＋ js/booklist-data.js（placeholder；CI 由 build-booklist.js 以 Firestore 資料覆蓋）
   fs.mkdirSync(path.join(OUTPUT_DIR, 'js'), { recursive: true });
-  for (const f of ['toolbar.js', 'comments.js']) {
+  for (const f of ['toolbar.js', 'comments.js', 'booklist.js', 'booklist-data.js']) {
     fs.copyFileSync(path.join(SITE_DIR, 'js', f), path.join(OUTPUT_DIR, 'js', f));
   }
-  // css/comments.css（文章頁注入）
+  // css/comments.css（文章頁注入）＋ css/booklist.css（推薦書單頁）
   fs.mkdirSync(path.join(OUTPUT_DIR, 'css'), { recursive: true });
-  fs.copyFileSync(path.join(SITE_DIR, 'css', 'comments.css'), path.join(OUTPUT_DIR, 'css', 'comments.css'));
+  for (const f of ['comments.css', 'booklist.css']) {
+    fs.copyFileSync(path.join(SITE_DIR, 'css', f), path.join(OUTPUT_DIR, 'css', f));
+  }
 }
 
 // ─── Noindex injection ──────────────────────────────────────
