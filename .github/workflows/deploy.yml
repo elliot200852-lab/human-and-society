@@ -39,6 +39,7 @@ jobs:
       - name: Enrich book recommendations (Firestore hs-book-recs)
         env:
           FIRESTORE_SA_KEY: ${{ secrets.FIRESTORE_SA_KEY }}
+          GOOGLE_BOOKS_API_KEY: ${{ secrets.GOOGLE_BOOKS_API_KEY }} # 匿名 Books API 在 runner 會 429
         run: node scripts/enrich-book-recs.js
       - name: Build site from public source and Drive
         env:

@@ -177,7 +177,9 @@ async function searchGoogleBooks(title, author, notes) {
 
   for (const attempt of attempts) {
     try {
-      const url = `https://www.googleapis.com/books/v1/volumes?q=${attempt.qEncoded}&country=TW&maxResults=5`;
+      // GOOGLE_BOOKS_API_KEY：匿名配額在 GH Actions 機房會 429（2026-07-14 實測），帶專案 key 用自己的配額桶
+      const keyParam = process.env.GOOGLE_BOOKS_API_KEY ? `&key=${process.env.GOOGLE_BOOKS_API_KEY}` : '';
+      const url = `https://www.googleapis.com/books/v1/volumes?q=${attempt.qEncoded}&country=TW&maxResults=5${keyParam}`;
       const res = await fetchWithTimeout(url, {}, 10000);
       if (!res.ok) {
         notes.push(`Google Books（${attempt.label}）HTTP ${res.status}`);
@@ -333,12 +335,23 @@ async function main() {
 
   console.log('📚 讀取 hs-book-recs...');
   const docs = await listAllDocs(token);
-  const pending = docs.filter((d) => !(d.fields && d.fields.enrichedAt));
+  // 待 enrich＝從未跑過（無 enrichedAt），或上次沒補齊（partial/failed）且重試未滿 3 次
+  // ——外部查詢（Google Books 429 等）屬暫時性失敗，值得隔日排程重試；上限 3 次防無限重抓。
+  const MAX_ATTEMPTS = 3;
+  const pending = docs.filter((d) => {
+    const f = d.fields || {};
+    if (!f.enrichedAt) return true;
+    const status = f.enrichStatus && f.enrichStatus.stringValue;
+    const attempts = f.enrichAttempts ? Number(f.enrichAttempts.integerValue || f.enrichAttempts.doubleValue || 0) : 1;
+    return (status === 'partial' || status === 'failed') && attempts < MAX_ATTEMPTS;
+  });
   console.log(`   共 ${docs.length} 筆，待 enrich ${pending.length} 筆`);
 
   let ok = 0, partial = 0, failed = 0;
   for (const doc of pending) {
     const data = fsToJs(doc.fields);
+    const prevAttempts = doc.fields && doc.fields.enrichAttempts
+      ? Number(doc.fields.enrichAttempts.integerValue || doc.fields.enrichAttempts.doubleValue || 0) : 0;
     const label = data.title || data.url || doc.name;
     try {
       const result = await enrichOne(data);
@@ -347,7 +360,8 @@ async function main() {
         enrichStatus: jsToFsValue(result.status),
         enrichNotes: jsToFsValue(result.notes),
         enrichedAt: jsToFsValue(new Date()),
-      }, ['enriched', 'enrichStatus', 'enrichNotes', 'enrichedAt']);
+        enrichAttempts: jsToFsValue(prevAttempts + 1),
+      }, ['enriched', 'enrichStatus', 'enrichNotes', 'enrichedAt', 'enrichAttempts']);
       if (result.status === 'ok') ok++;
       else if (result.status === 'partial') partial++;
       else failed++;
@@ -364,7 +378,8 @@ async function main() {
           enrichStatus: jsToFsValue('failed'),
           enrichNotes: jsToFsValue([`處理例外：${e.message}`]),
           enrichedAt: jsToFsValue(new Date()),
-        }, ['enriched', 'enrichStatus', 'enrichNotes', 'enrichedAt']);
+          enrichAttempts: jsToFsValue(prevAttempts + 1),
+        }, ['enriched', 'enrichStatus', 'enrichNotes', 'enrichedAt', 'enrichAttempts']);
       } catch (e2) {
         console.error(`   ⚠️  寫回 failed 狀態也失敗：${label} — ${e2.message}`);
       }
