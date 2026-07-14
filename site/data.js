@@ -20,6 +20,24 @@ const META = {
 
 const CATEGORIES = [
   {
+    num: '02',
+    id: 'c02',
+    folder: '02_推薦書單',
+    title: '推薦書單',
+    subtitle: 'Reading Together',
+    note: '社群共築的書架——推薦流程、使用方式與相關文章。書單本體在「推薦書單」頁。',
+    accent: 'var(--hs-indigo)',
+    items: [
+      {
+        title: '推薦書單，這樣用——每個人都能為社群薦一本書',
+        date: '2026-07-14',
+        size: '',
+        desc: '推薦書單的製作流程與使用指南：怎麼推薦一本書、送出後系統與人各做了什麼、怎麼閱讀書卡與使用搜尋篩選。',
+        file: '2026-07-14_推薦書單使用指南.html',
+      },
+    ],
+  },
+  {
     num: '01',
     id: 'c01',
     folder: '01_社團緣起',
