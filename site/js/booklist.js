@@ -51,19 +51,117 @@ function escapeHtml(s) {
 }
 
 // ─── 1. 公開書單列表 ──────────────────────────────────────────────────────────
+// 分類標籤＋搜尋/篩選：allBooks 是資料來源（window.HS_BOOKLIST 的快照），
+// searchTerm/selectedCategory 是目前篩選狀態，applyFilters() 依兩者重繪
+// #hs-bl-list（AND 邏輯：同時符合文字與分類才顯示）。分類 chips 從資料動態
+// 去重生成，不硬寫分類清單。
+let allBooks = [];
+let searchTerm = '';
+let selectedCategory = null; // null = 未選（等同「全部」）
+
 renderBookList();
 
 function renderBookList() {
   const mount = document.getElementById('hs-bl-list');
   if (!mount) return;
-  const books = Array.isArray(window.HS_BOOKLIST) ? window.HS_BOOKLIST : [];
+  allBooks = Array.isArray(window.HS_BOOKLIST) ? window.HS_BOOKLIST : [];
 
-  if (!books.length) {
+  if (!allBooks.length) {
     mount.innerHTML = '<p class="hs-bl-empty">目前還沒有審核通過的推薦書，歡迎在下方推薦第一本。</p>';
+    hideFilters();
     return;
   }
 
-  mount.innerHTML = books.map(bookCardHtml).join('');
+  setupFilters();
+  applyFilters();
+}
+
+function hideFilters() {
+  const wrap = document.getElementById('hs-bl-filters');
+  if (wrap) wrap.hidden = true;
+}
+
+function setupFilters() {
+  const wrap = document.getElementById('hs-bl-filters');
+  if (wrap) wrap.hidden = false;
+
+  const searchInput = document.getElementById('hs-bl-search');
+  if (searchInput && !searchInput.dataset.bound) {
+    searchInput.addEventListener('input', () => {
+      searchTerm = searchInput.value.trim().toLowerCase();
+      applyFilters();
+    });
+    searchInput.dataset.bound = '1';
+  }
+
+  const chipsMount = document.getElementById('hs-bl-cat-chips');
+  if (!chipsMount) return;
+
+  const categories = Array.from(new Set(
+    allBooks.map((b) => (b.category || '').trim()).filter(Boolean),
+  )).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
+
+  if (!categories.length) {
+    chipsMount.hidden = true;
+    chipsMount.innerHTML = '';
+    return;
+  }
+
+  chipsMount.hidden = false;
+  chipsMount.innerHTML = ['全部', ...categories].map((cat) => {
+    const isAll = cat === '全部';
+    return `<button type="button" class="hs-bl-cat-chip" data-cat="${isAll ? '' : escapeHtml(cat)}">${escapeHtml(cat)}</button>`;
+  }).join('');
+
+  chipsMount.querySelectorAll('.hs-bl-cat-chip').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const cat = btn.dataset.cat;
+      if (cat === '') {
+        selectedCategory = null; // 「全部」＝取消篩選
+      } else if (selectedCategory === cat) {
+        selectedCategory = null; // 再點同顆 = 取消篩選
+      } else {
+        selectedCategory = cat;
+      }
+      applyFilters();
+    });
+  });
+
+  updateActiveChipStates();
+}
+
+function updateActiveChipStates() {
+  const chipsMount = document.getElementById('hs-bl-cat-chips');
+  if (!chipsMount) return;
+  chipsMount.querySelectorAll('.hs-bl-cat-chip').forEach((btn) => {
+    const cat = btn.dataset.cat;
+    const isActive = cat === '' ? selectedCategory === null : selectedCategory === cat;
+    btn.classList.toggle('is-active', isActive);
+    btn.setAttribute('aria-pressed', String(isActive));
+  });
+}
+
+function applyFilters() {
+  updateActiveChipStates();
+
+  const mount = document.getElementById('hs-bl-list');
+  if (!mount) return;
+
+  const filtered = allBooks.filter((b) => {
+    if (selectedCategory && (b.category || '').trim() !== selectedCategory) return false;
+    if (searchTerm) {
+      const hay = `${b.title || ''} ${b.author || ''}`.toLowerCase();
+      if (!hay.includes(searchTerm)) return false;
+    }
+    return true;
+  });
+
+  if (!filtered.length) {
+    mount.innerHTML = '<p class="hs-bl-empty">沒有符合的書，換個關鍵字試試。</p>';
+    return;
+  }
+
+  mount.innerHTML = filtered.map(bookCardHtml).join('');
 }
 
 function bookCardHtml(b) {
@@ -73,6 +171,10 @@ function bookCardHtml(b) {
     ? `<p class="hs-bl-card-desc">${escapeHtml(b.description)}</p>`
     : '<p class="hs-bl-card-desc hs-bl-card-desc--empty">摘要整理中</p>';
   const title = b.title || '（未命名書籍）';
+  const category = (b.category || '').trim();
+  const categoryTag = category
+    ? `<span class="hs-bl-card-tag">${escapeHtml(category)}</span>`
+    : '';
   const chips = [
     b.booksUrl
       ? `<a class="hs-bl-chip hs-bl-chip--buy" href="${escapeHtml(b.booksUrl)}" target="_blank" rel="noopener nofollow" aria-label="博客來購買：${escapeHtml(title)}">博客來購買 ›</a>`
@@ -84,7 +186,10 @@ function bookCardHtml(b) {
 
   return `
     <article class="hs-bl-card">
-      <h3 class="hs-bl-card-title">${escapeHtml(title)}</h3>
+      <div class="hs-bl-card-head">
+        <h3 class="hs-bl-card-title">${escapeHtml(title)}</h3>
+        ${categoryTag}
+      </div>
       ${meta ? `<p class="hs-bl-card-meta">${meta}</p>` : ''}
       ${desc}
       ${chips ? `<div class="hs-bl-card-chips">${chips}</div>` : ''}
@@ -265,9 +370,16 @@ function renderPendingItem(id, d) {
   const warn = d.enrichStatus === 'partial' || d.enrichStatus === 'failed';
   const enriched = d.enriched || {};
   const label = d.title || d.url || '此書';
-  const descPreview = enriched.description
-    ? escapeHtml(enriched.description).slice(0, 100) + (enriched.description.length > 100 ? '…' : '')
+
+  // 頂層 eduSummary（David 已審過的教育者摘要）優先於 enriched.description
+  // （出版商宣傳文，僅供整理參考，不會上頁面）。兩者互斥顯示，標籤註明來源。
+  const eduSummary = (d.eduSummary || '').trim();
+  const descSource = eduSummary || enriched.description || '';
+  const descLabel = eduSummary ? '教育者摘要（已審）' : '出版商簡介（僅參考，不上頁）';
+  const descPreview = descSource
+    ? escapeHtml(descSource).slice(0, 100) + (descSource.length > 100 ? '…' : '')
     : '（無）';
+  const category = (d.category || '').trim();
   const enrichedLinks = [
     enriched.booksUrl ? `<a href="${escapeHtml(enriched.booksUrl)}" target="_blank" rel="noopener nofollow">博客來 ›</a>` : '',
     enriched.libraryUrl ? `<a href="${escapeHtml(enriched.libraryUrl)}" target="_blank" rel="noopener nofollow">圖書館 ›</a>` : '',
@@ -288,7 +400,8 @@ function renderPendingItem(id, d) {
         <p class="hs-bl-pending-field"><strong>作者</strong>：${escapeHtml(enriched.author || '（無）')}</p>
         <p class="hs-bl-pending-field"><strong>出版社</strong>：${escapeHtml(enriched.publisher || '（無）')}</p>
         <p class="hs-bl-pending-field"><strong>ISBN</strong>：${escapeHtml(enriched.isbn13 || '（無）')}</p>
-        <p class="hs-bl-pending-field"><strong>摘要</strong>：${descPreview}</p>
+        ${category ? `<p class="hs-bl-pending-field"><strong>分類</strong>：${escapeHtml(category)}</p>` : ''}
+        <p class="hs-bl-pending-field"><strong>${descLabel}</strong>：${descPreview}</p>
         ${enrichedLinks ? `<p class="hs-bl-pending-field">${enrichedLinks}</p>` : ''}
         ${d.enrichNotes ? `<p class="hs-bl-pending-notes">${escapeHtml(d.enrichNotes)}</p>` : ''}
       </div>

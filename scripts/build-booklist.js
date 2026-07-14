@@ -120,6 +120,8 @@ async function main() {
       // 出版商宣傳文（enriched.description）僅供審核參考與摘要起草素材，不上頁面；
       // eduSummary 未就緒時留空 → 前端顯示「摘要整理中」。
       description: data.eduSummary || '',
+      // 分類標籤（doc 頂層 category，爬梳流程與 David 一起定；前端據此生成篩選 chips）
+      category: data.category || '',
       booksUrl: enriched.booksUrl || data.url || '',
       libraryUrl: enriched.libraryUrl || '',
       submitterName: data.submitterName || '',

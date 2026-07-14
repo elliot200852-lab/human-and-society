@@ -26,6 +26,13 @@
 
     <section aria-labelledby="hs-bl-list-heading">
       <h2 id="hs-bl-list-heading" class="hs-bl-section-label">書單 · Booklist</h2>
+      <div id="hs-bl-filters" class="hs-bl-filters" hidden>
+        <div class="hs-bl-search-field">
+          <label for="hs-bl-search" class="hs-bl-visually-hidden">搜尋書名或作者</label>
+          <input type="search" id="hs-bl-search" class="hs-bl-search-input" placeholder="搜尋書名或作者…" autocomplete="off" />
+        </div>
+        <div id="hs-bl-cat-chips" class="hs-bl-cat-chips" role="group" aria-label="依分類篩選" hidden></div>
+      </div>
       <div id="hs-bl-list" class="hs-bl-list">
         <p class="hs-bl-empty">載入中…</p>
       </div>
