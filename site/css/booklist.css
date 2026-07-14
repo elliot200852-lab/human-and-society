@@ -500,3 +500,21 @@
   .hs-bl-card-chips { flex-direction: column; }
   .hs-bl-topbar { flex-direction: column; gap: var(--sp-3); align-items: flex-start; }
 }
+
+/* 摘要收合／展開（>200 字截斷，繼續閱讀切換） */
+.hs-bl-desc-toggle {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.88em;
+  color: var(--earth-brown, #8a6d4f);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.hs-bl-desc-toggle:hover,
+.hs-bl-desc-toggle:focus-visible {
+  opacity: 0.75;
+}

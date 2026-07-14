@@ -61,6 +61,25 @@ let selectedCategory = null; // null = 未選（等同「全部」）
 
 renderBookList();
 
+// 「繼續閱讀 / 收合」展開摘要——事件代理掛在列表容器（卡片會隨篩選重繪）
+(function () {
+  const mount = document.getElementById('hs-bl-list');
+  if (!mount) return;
+  mount.addEventListener('click', (e) => {
+    const btn = e.target.closest('.hs-bl-desc-toggle');
+    if (!btn) return;
+    const p = btn.closest('.hs-bl-card-desc');
+    if (!p) return;
+    const shortEl = p.querySelector('.hs-bl-desc-short');
+    const fullEl = p.querySelector('.hs-bl-desc-full');
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    if (shortEl) shortEl.hidden = !expanded;
+    if (fullEl) fullEl.hidden = expanded;
+    btn.setAttribute('aria-expanded', String(!expanded));
+    btn.textContent = expanded ? '繼續閱讀' : '收合';
+  });
+})();
+
 function renderBookList() {
   const mount = document.getElementById('hs-bl-list');
   if (!mount) return;
@@ -167,9 +186,21 @@ function applyFilters() {
 function bookCardHtml(b) {
   const metaParts = [b.author, b.publisher, b.isbn13 ? `ISBN ${b.isbn13}` : ''].filter(Boolean);
   const meta = metaParts.map(escapeHtml).join(' · ');
-  const desc = b.description
-    ? `<p class="hs-bl-card-desc">${escapeHtml(b.description)}</p>`
-    : '<p class="hs-bl-card-desc hs-bl-card-desc--empty">摘要整理中</p>';
+  // 摘要超過 200 字先截斷收合，點「繼續閱讀」展開全文（可再收合）——省版面
+  const DESC_CLAMP = 200;
+  let desc;
+  if (!b.description) {
+    desc = '<p class="hs-bl-card-desc hs-bl-card-desc--empty">摘要整理中</p>';
+  } else if (b.description.length <= DESC_CLAMP) {
+    desc = `<p class="hs-bl-card-desc">${escapeHtml(b.description)}</p>`;
+  } else {
+    const short = b.description.slice(0, DESC_CLAMP);
+    desc = `<p class="hs-bl-card-desc">`
+      + `<span class="hs-bl-desc-short">${escapeHtml(short)}<span class="hs-bl-desc-ellipsis">…</span></span>`
+      + `<span class="hs-bl-desc-full" hidden>${escapeHtml(b.description)}</span>`
+      + ` <button type="button" class="hs-bl-desc-toggle" aria-expanded="false" aria-label="展開完整摘要：${escapeHtml(b.title || '')}">繼續閱讀</button>`
+      + `</p>`;
+  }
   const title = b.title || '（未命名書籍）';
   const category = (b.category || '').trim();
   const categoryTag = category
