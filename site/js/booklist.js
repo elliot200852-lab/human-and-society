@@ -71,7 +71,7 @@ function bookCardHtml(b) {
   const meta = metaParts.map(escapeHtml).join(' · ');
   const desc = b.description
     ? `<p class="hs-bl-card-desc">${escapeHtml(b.description)}</p>`
-    : '<p class="hs-bl-card-desc hs-bl-card-desc--empty">摘要待補</p>';
+    : '<p class="hs-bl-card-desc hs-bl-card-desc--empty">摘要整理中</p>';
   const title = b.title || '（未命名書籍）';
   const chips = [
     b.booksUrl

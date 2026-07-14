@@ -116,7 +116,10 @@ async function main() {
       publisher: enriched.publisher || '',
       publishedDate: enriched.publishedDate || '',
       isbn13: enriched.isbn13 || '',
-      description: enriched.description || '',
+      // 公開頁只放 David 審過的教育者摘要（doc 頂層 eduSummary，開工爬梳流程回寫）。
+      // 出版商宣傳文（enriched.description）僅供審核參考與摘要起草素材，不上頁面；
+      // eduSummary 未就緒時留空 → 前端顯示「摘要整理中」。
+      description: data.eduSummary || '',
       booksUrl: enriched.booksUrl || data.url || '',
       libraryUrl: enriched.libraryUrl || '',
       submitterName: data.submitterName || '',
