@@ -340,6 +340,11 @@ async function main() {
   const MAX_ATTEMPTS = 3;
   const pending = docs.filter((d) => {
     const f = d.fields || {};
+    // David 審過的書（有 eduSummary）＝人工校訂過的紀錄，一律不再自動覆蓋。
+    // 2026-07-26 的教訓：博客來商品頁回 403 時，enrich 退回「用書名查 Google Books」，
+    // 「傅柯」二字撈回書林《傅柯與文學》，跟薦書者附的連結（春山・艾希邦傳記）不是
+    // 同一本書。人工訂正 enriched 之後，這裡若讓它照 partial 狀態重跑，就會被洗回錯的那本。
+    if (f.eduSummary && f.eduSummary.stringValue) return false;
     if (!f.enrichedAt) return true;
     const status = f.enrichStatus && f.enrichStatus.stringValue;
     const attempts = f.enrichAttempts ? Number(f.enrichAttempts.integerValue || f.enrichAttempts.doubleValue || 0) : 1;
