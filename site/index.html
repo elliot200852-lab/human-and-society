@@ -414,6 +414,12 @@
       document.getElementById('metaUpdated').textContent = formatted;
       document.getElementById('metaUpdatedFoot').textContent = 'Updated ' + formatted;
 
+      // 分類數的英文字樣（原本寫死 "One section"，分類變多就對不上）
+      const WORDS = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+      const n = CATEGORIES.length;
+      document.getElementById('contentsCount').textContent =
+        (WORDS[n] || n) + ' section' + (n === 1 ? '' : 's');
+
       const list = document.getElementById('tocList');
       list.innerHTML = CATEGORIES.map((cat, i) => {
         const side = i % 2 === 0 ? 'left' : 'right';
