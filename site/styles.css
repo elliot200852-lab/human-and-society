@@ -150,3 +150,64 @@ img, svg { display: block; max-width: 100%; }
   border: none;
   margin: var(--sp-7) 0;
 }
+
+/* ============================================================
+   分頁列（Tab bar）— index.html 與 booklist.html 共用
+   由 js/tabs.js 依 data.js 的 CATEGORIES 產生
+   ============================================================ */
+.hs-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0;
+  margin: var(--sp-8) 0 var(--sp-9);
+}
+.hs-tab {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: var(--sp-3) var(--sp-5) var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: flex-start;
+  color: var(--ink-muted);
+  cursor: pointer;
+  text-align: left;
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+  margin-bottom: -1px;
+}
+.hs-tab:hover { color: var(--ink); background: var(--paper-2); }
+.hs-tab.is-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: none;
+}
+.hs-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.hs-tab-label {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+.hs-tab.is-active .hs-tab-label { font-weight: 600; }
+.hs-tab-sub {
+  font-family: var(--font-latin-book);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+  line-height: 1;
+}
+.hs-tab.is-active .hs-tab-sub { color: var(--accent); opacity: 0.8; }
+
+@media (max-width: 700px) {
+  .hs-tabs { gap: 2px; margin: var(--sp-6) 0 var(--sp-7); }
+  .hs-tab { padding: var(--sp-2) var(--sp-4) var(--sp-3); }
+  .hs-tab-label { font-size: 15px; letter-spacing: 0.04em; }
+  .hs-tab-sub { display: none; }
+}

@@ -9,7 +9,9 @@
   <link rel="stylesheet" href="styles.css" />
   <style>
     /* ============================================================
-       index.html — topic list (staggered)
+       index.html — 分頁式主頁（Tab shell）
+       上方一排 Tab（js/tabs.js 依 data.js 產生），下方就地切換內容面板。
+       每個 Tab 有自己的網址：index.html?tab=<id>，可以直接分享。
        ============================================================ */
     body {
       background: var(--paper);
@@ -81,32 +83,9 @@
       font-weight: 500;
     }
 
-    /* ---- quicklinks ---- */
-    .quicklinks {
-      display: flex;
-      justify-content: flex-end;
-      padding-top: var(--sp-4);
-    }
-    .quicklinks-link {
-      font-family: var(--font-sans);
-      font-size: var(--fs-eyebrow);
-      letter-spacing: var(--ls-caps);
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      padding: 8px 18px;
-      border: 1px solid var(--rule-2);
-      border-radius: 999px;
-      transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
-    }
-    .quicklinks-link:hover {
-      background: var(--accent);
-      color: var(--paper);
-      border-color: var(--accent);
-    }
-
     /* ---- tagline strip ---- */
     .tagline {
-      padding: var(--sp-9) 0 var(--sp-11);
+      padding: var(--sp-8) 0 var(--sp-2);
       max-width: 720px;
       font-family: var(--font-serif);
       font-size: 17px;
@@ -123,179 +102,253 @@
       font-weight: 500;
       letter-spacing: 0.08em;
       color: var(--accent);
-      margin: 0 0 var(--sp-5);
+      margin: 0 0 var(--sp-4);
       line-height: 1.6;
     }
-    .tagline .signature {
-      display: block;
-      margin-top: var(--sp-6);
-      font-family: var(--font-sans);
-      font-size: var(--fs-eyebrow);
-      letter-spacing: var(--ls-caps);
-      text-transform: uppercase;
-      color: var(--ink-faint);
-    }
 
-    /* ---- contents header ---- */
-    .contents-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      padding-bottom: var(--sp-4);
-      border-bottom: 1px solid var(--rule);
-      margin-bottom: var(--sp-2);
+    /* ---- panel header ---- */
+    .sec-head {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      column-gap: var(--sp-7);
+      align-items: end;
+      margin-bottom: var(--sp-4);
     }
-    .contents-head .label {
+    .sec-num {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 64px;
+      line-height: 0.9;
+      color: var(--accent);
+      font-feature-settings: "tnum";
+    }
+    .sec-eyebrow {
       font-family: var(--font-sans);
       font-size: var(--fs-eyebrow);
       letter-spacing: var(--ls-kicker);
       text-transform: uppercase;
-      color: var(--accent);
-      font-weight: 500;
-      margin: 0;
-    }
-    .contents-head .count {
-      font-family: var(--font-latin-book);
-      font-style: italic;
       color: var(--ink-faint);
-      font-size: 15px;
-      letter-spacing: 0.04em;
+      margin: 0 0 var(--sp-2);
     }
-
-    /* ---- staggered list ---- */
-    .toc-list {
-      display: flex;
-      flex-direction: column;
+    .sec-title {
+      font-family: var(--font-serif);
+      font-weight: 500;
+      font-size: clamp(26px, 3.2vw, 34px);
+      letter-spacing: 0.1em;
+      margin: 0;
+      color: var(--ink);
+      line-height: 1.2;
     }
-    .row {
-      position: relative;
-      display: grid;
-      grid-template-columns: 96px 1fr auto;
-      column-gap: var(--sp-7);
-      align-items: stretch;
-      padding: var(--sp-7) var(--sp-8) var(--sp-7) var(--sp-9);
-      border-bottom: 1px solid var(--rule);
-      color: inherit;
-      transition: background 160ms ease;
-      width: 82%;
-      min-height: 130px;
-    }
-    .row:first-child { border-top: 1px solid var(--rule); }
-    .row:hover { background: var(--paper-2); }
-
-    /* alternating anchor side */
-    .row--left  { margin-right: 18%; margin-left: 0; }
-    .row--right { margin-left: 18%; margin-right: 0; }
-
-    /* colored accent rule on the anchor side (the page-edge side) */
-    .row::before {
-      content: "";
-      position: absolute;
-      top: 0; bottom: 0;
-      width: 3px;
-      background: var(--cat-accent, var(--accent));
-      opacity: 0.85;
-    }
-    .row--left::before  { left: 0; }
-    .row--right::before { right: 0; }
-
-    .row-num {
-      align-self: center;
+    .sec-count {
       font-family: var(--font-serif);
       font-style: italic;
+      font-size: 15px;
+      color: var(--ink-faint);
+      white-space: nowrap;
+    }
+    .sec-count strong {
+      font-size: 26px;
       font-weight: 400;
-      font-size: 64px;
-      color: var(--cat-accent, var(--accent));
-      letter-spacing: 0;
-      line-height: 1;
+      color: var(--accent);
+      margin-right: 4px;
       font-feature-settings: "tnum";
-      padding-top: 6px;
+    }
+    .sec-rule {
+      height: 1px;
+      background: var(--rule);
+      border: none;
+      margin: 0 0 var(--sp-6);
+    }
+    .sec-note {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      line-height: 1.95;
+      letter-spacing: 0.04em;
+      color: var(--ink-2);
+      max-width: 46em;
+      margin: 0 0 var(--sp-8);
     }
 
-    .row-body {
-      align-self: center;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 0;
+    /* ---- cards ---- */
+    .cards { display: flex; flex-direction: column; gap: var(--sp-4); }
+    .cards--grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--sp-4);
     }
-    .row-titles {
+    .card {
+      position: relative;
+      display: block;
+      padding: var(--sp-6) var(--sp-7);
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--r-2);
+      background: var(--paper);
+      color: inherit;
+      transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+    }
+    a.card:hover {
+      background: var(--paper-2);
+      border-color: var(--rule-2);
+      border-left-color: var(--accent);
+      transform: translateX(2px);
+    }
+    .card-head {
       display: flex;
       align-items: baseline;
+      justify-content: space-between;
+      gap: var(--sp-5);
       flex-wrap: wrap;
-      column-gap: var(--sp-5);
-      row-gap: 2px;
     }
-    .row-title {
+    .card-title {
       font-family: var(--font-serif);
       font-weight: 500;
-      font-size: clamp(22px, 2.4vw, 26px);
-      letter-spacing: 0.06em;
+      font-size: 18px;
+      letter-spacing: 0.05em;
       color: var(--ink);
       margin: 0;
-      line-height: 1.25;
+      line-height: 1.5;
       transition: color 140ms ease;
     }
-    .row-sub {
-      font-family: var(--font-latin-italic);
-      font-style: italic;
-      font-size: clamp(20px, 2vw, 22px);
-      color: var(--ink-muted);
-      margin: 0;
-      letter-spacing: 0.02em;
-      line-height: 1;
-    }
-    .row-note {
-      font-family: var(--font-serif);
-      font-size: 14.5px;
-      color: var(--ink-muted);
-      letter-spacing: 0.04em;
-      line-height: 1.7;
-      margin: 0;
-      max-width: 38em;
-    }
-
-    .row-end {
-      align-self: center;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      justify-content: center;
-      gap: 6px;
-      min-width: 96px;
-    }
-    .row-count {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-weight: 400;
-      font-size: 24px;
-      color: var(--cat-accent, var(--accent));
-      letter-spacing: 0;
-      line-height: 1;
+    a.card:hover .card-title { color: var(--accent); }
+    .card-meta {
+      font-family: var(--font-sans);
+      font-size: var(--fs-caption);
+      letter-spacing: var(--ls-wide);
+      color: var(--ink-faint);
+      white-space: nowrap;
       font-feature-settings: "tnum";
     }
-    .row-count-label {
+    .card-desc {
+      font-family: var(--font-serif);
+      font-size: 14.5px;
+      line-height: 1.9;
+      letter-spacing: 0.03em;
+      color: var(--ink-muted);
+      margin: var(--sp-3) 0 0;
+      max-width: 46em;
+    }
+    .card-cta {
+      display: inline-block;
+      margin-top: var(--sp-4);
       font-family: var(--font-sans);
-      font-size: 10.5px;
+      font-size: var(--fs-eyebrow);
       letter-spacing: var(--ls-caps);
       text-transform: uppercase;
-      color: var(--ink-faint);
+      color: var(--accent);
     }
-    .row-arrow {
+    .card--feature { border-left-width: 4px; background: var(--paper-2); }
+
+    /* ---- friday panel ---- */
+    .fri-lede {
+      border: 1px solid var(--rule);
+      border-radius: var(--r-2);
+      background: var(--paper-2);
+      padding: var(--sp-6) var(--sp-7);
+      margin-bottom: var(--sp-8);
+    }
+    .fri-when {
+      font-family: var(--font-sans);
+      font-size: var(--fs-small);
+      letter-spacing: var(--ls-wide);
+      color: var(--accent);
+      margin: 0 0 var(--sp-4);
+    }
+    .fri-when .dot { color: var(--rule-2); margin: 0 var(--sp-3); }
+    .fri-theme {
       font-family: var(--font-serif);
-      font-style: normal;
-      font-size: 22px;
-      color: var(--ink-muted);
+      font-weight: 500;
+      font-size: 20px;
+      letter-spacing: 0.1em;
+      color: var(--ink);
+      margin: 0 0 var(--sp-4);
+    }
+    .fri-intro {
+      font-family: var(--font-serif);
+      font-size: 15.5px;
+      line-height: 2;
+      letter-spacing: 0.04em;
+      color: var(--ink-2);
+      margin: 0;
+      text-align: justify;
+      text-justify: inter-ideograph;
+    }
+    .fri-closing {
+      font-family: var(--font-serif);
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin: var(--sp-5) 0 0;
+    }
+    .week-tag {
+      font-family: var(--font-sans);
+      font-size: var(--fs-eyebrow);
+      letter-spacing: var(--ls-caps);
+      color: var(--paper);
+      background: var(--accent);
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .card--skip { border-left-color: var(--rule-2); background: transparent; }
+    .card--skip .week-tag { background: var(--rule-2); }
+    .card--skip .card-title { color: var(--ink-muted); }
+    .week-sub {
+      font-family: var(--font-serif);
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+      margin: var(--sp-4) 0 0;
+    }
+    .week-poem {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      line-height: 2.1;
+      letter-spacing: 0.06em;
+      color: var(--ink-2);
+      white-space: pre-wrap;
+      margin: var(--sp-4) 0 0;
+      padding-left: var(--sp-5);
+      border-left: 1px solid var(--rule);
+    }
+    .week-poem-src {
+      display: block;
       margin-top: var(--sp-3);
-      transition: color 140ms ease, transform 200ms ease;
-      line-height: 1;
+      font-size: 13px;
+      color: var(--ink-faint);
+      letter-spacing: 0.04em;
     }
-    .row:hover .row-arrow {
-      color: var(--cat-accent, var(--accent));
-      transform: translateX(4px);
+    .week-closing {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin: var(--sp-4) 0 0;
     }
-    .row:hover .row-title {
-      color: var(--cat-accent, var(--accent));
+    .week-link {
+      display: inline-block;
+      margin-top: var(--sp-4);
+      font-family: var(--font-sans);
+      font-size: var(--fs-caption);
+      letter-spacing: var(--ls-wide);
+      color: var(--accent);
+      border-bottom: 1px solid var(--rule-2);
+      padding-bottom: 1px;
+    }
+    .week-link:hover { color: var(--hs-indigo-deep); border-bottom-color: var(--accent); }
+
+    /* ---- empty ---- */
+    .empty {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      color: var(--ink-faint);
+      letter-spacing: 0.06em;
+      padding: var(--sp-9) 0;
+      border-top: 1px dashed var(--rule);
+      border-bottom: 1px dashed var(--rule);
+      text-align: center;
     }
 
     /* ---- colophon ---- */
@@ -338,17 +391,15 @@
       .page { padding: var(--sp-7) var(--sp-7) var(--sp-13); }
       .masthead { grid-template-columns: 1fr; gap: var(--sp-5); align-items: start; }
       .masthead-meta { text-align: left; }
-      .row { width: 100%; margin: 0 !important; grid-template-columns: 64px 1fr auto; column-gap: var(--sp-5); padding: var(--sp-6) var(--sp-5) var(--sp-6) var(--sp-6); }
-      .row--right::before { left: 0; right: auto; }
-      .row-num { font-size: 44px; }
-      .row-end { min-width: 56px; }
+      .sec-head { grid-template-columns: auto 1fr; row-gap: var(--sp-3); }
+      .sec-num { font-size: 46px; }
+      .sec-count { grid-column: 1 / -1; }
     }
     @media (max-width: 560px) {
       .page { padding: var(--sp-6) var(--sp-5) var(--sp-11); }
-      .row { grid-template-columns: 1fr auto; padding: var(--sp-6) var(--sp-5) var(--sp-6) var(--sp-7); }
-      .row-num { display: none; }
-      .row-title { font-size: 20px; }
-      .row-sub { font-size: 17px; }
+      .sec-num { display: none; }
+      .card { padding: var(--sp-5); }
+      .fri-lede { padding: var(--sp-5); }
     }
   </style>
 </head>
@@ -362,31 +413,20 @@
         <p class="masthead-sub">Human &amp; Society</p>
       </div>
       <div class="masthead-meta">
-        <div><span class="label">Items</span><span class="val" id="metaCount">1 件</span></div>
-        <div><span class="label">Sections</span><span class="val" id="metaCats">1 類</span></div>
-        <div><span class="label">Updated</span><span class="val" id="metaUpdated">2026 / 07 / 12</span></div>
+        <div><span class="label">Items</span><span class="val" id="metaCount">—</span></div>
+        <div><span class="label">Sections</span><span class="val" id="metaCats">—</span></div>
+        <div><span class="label">Updated</span><span class="val" id="metaUpdated">—</span></div>
       </div>
     </header>
 
-    <nav class="quicklinks" aria-label="快速連結">
-      <a class="quicklinks-link" href="booklist.html">推薦書單 <span aria-hidden="true">→</span></a>
-      <a class="quicklinks-link" href="https://taiwan.md/" target="_blank" rel="noopener">Taiwan.md <span aria-hidden="true">↗</span></a>
-      <a class="quicklinks-link" href="https://elliot200852-lab.github.io/taiwan-arts-db/" target="_blank" rel="noopener">臺灣人文藝術資料庫 <span aria-hidden="true">↗</span></a>
-      <a class="quicklinks-link" href="https://elliot200852-lab.github.io/taiwan-geo-db/" target="_blank" rel="noopener">認識臺灣地理資料庫 <span aria-hidden="true">↗</span></a>
-    </nav>
-
     <p class="tagline">
       <span class="lead-line">從台灣出發，與世界建立連結</span>
-      人與社會工作小組的文件與共同學習紀錄,依主題收於下方。點選任一分類,進入該主題的內容。
-      <span class="signature">人與社會教師社團 · 慈心華德福高中</span>
+      人與社會工作小組的文件與共同學習紀錄，依主題收於下方分頁。點選任一分頁，看該主題的內容。
     </p>
 
-    <div class="contents-head">
-      <p class="label">分類目錄 · Contents</p>
-      <p class="count italic-book" id="contentsCount">One section</p>
-    </div>
+    <nav class="hs-tabs" id="hsTabs" data-mode="inline" aria-label="主題分頁"></nav>
 
-    <nav class="toc-list" id="tocList" aria-label="主題分類"></nav>
+    <main id="panel"></main>
 
     <footer class="colophon">
       <div class="school">
@@ -395,60 +435,146 @@
       </div>
       <div class="stamp">
         人與社會教師社團<br />
-        <strong id="metaUpdatedFoot">Updated 2026 / 07 / 12</strong>
+        <strong id="metaUpdatedFoot">Updated —</strong>
       </div>
     </footer>
   </div>
 
   <script src="data.js"></script>
   <script>
+    // 面板渲染：聽 js/tabs.js 派發的 hs:tabchange，就地換內容。
+    // （這支必須在 tabs.js 之前載入——tabs.js 會在初始化時立刻派發一次事件。）
     (function () {
-      const { CATEGORIES, META } = window.DATA;
+      const { CATEGORIES, META, urlFor } = window.DATA;
 
-      // populate dynamic meta
-      const totalItems = CATEGORIES.reduce((sum, c) => sum + c.items.length, 0);
-      const formatDate = d => (d || '').replace(/-/g, ' / ');
-      const formatted = formatDate(META.updated);
+      const totalItems = CATEGORIES.reduce((s, c) => s + c.items.length, 0);
+      const fmtDate = d => (d || '').replace(/-/g, ' / ');
       document.getElementById('metaCount').textContent = totalItems + ' 件';
       document.getElementById('metaCats').textContent = CATEGORIES.length + ' 類';
-      document.getElementById('metaUpdated').textContent = formatted;
-      document.getElementById('metaUpdatedFoot').textContent = 'Updated ' + formatted;
+      document.getElementById('metaUpdated').textContent = fmtDate(META.updated);
+      document.getElementById('metaUpdatedFoot').textContent = 'Updated ' + fmtDate(META.updated);
 
-      // 分類數的英文字樣（原本寫死 "One section"，分類變多就對不上）
-      const WORDS = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-      const n = CATEGORIES.length;
-      document.getElementById('contentsCount').textContent =
-        (WORDS[n] || n) + ' section' + (n === 1 ? '' : 's');
+      const panel = document.getElementById('panel');
 
-      const list = document.getElementById('tocList');
-      list.innerHTML = CATEGORIES.map((cat, i) => {
-        const side = i % 2 === 0 ? 'left' : 'right';
-        return `
-          <a class="row row--${side}" href="category.html?cat=${cat.id}" style="--cat-accent:${cat.accent}">
-            <div class="row-num">${cat.num}</div>
-            <div class="row-body">
-              <div class="row-titles">
-                <h2 class="row-title">${escapeHtml(cat.title)}</h2>
-                <p class="row-sub">${escapeHtml(cat.subtitle)}</p>
-              </div>
-              <p class="row-note">${escapeHtml(cat.note)}</p>
+      document.addEventListener('hs:tabchange', e => render(e.detail.id));
+
+      function render(id) {
+        const cat = CATEGORIES.find(c => c.id === id);
+        if (!cat) return;
+        document.title = cat.title + ' · 人與社會｜教師社團';
+
+        const count = cat.kind === 'links'
+          ? (cat.links || []).length
+          : (cat.friday ? (cat.friday.weeks || []).filter(w => !w.status).length : cat.items.length);
+        const unit = cat.kind === 'links' ? '個' : (cat.friday ? '場' : '件');
+
+        panel.innerHTML = `
+          <header class="sec-head">
+            <div class="sec-num">${cat.num}</div>
+            <div>
+              <p class="sec-eyebrow">Section ${cat.num} · ${esc(cat.subtitle)}</p>
+              <h2 class="sec-title">${esc(cat.title)}</h2>
             </div>
-            <div class="row-end">
-              <span class="row-count">${cat.items.length}</span>
-              <span class="row-count-label">件</span>
-              <span class="row-arrow" aria-hidden="true">→</span>
-            </div>
-          </a>
+            <p class="sec-count"><strong>${count}</strong>${unit}</p>
+          </header>
+          <hr class="sec-rule" />
+          <p class="sec-note">${esc(cat.note)}</p>
+          ${body(cat)}
         `;
-      }).join('');
+      }
 
-      function escapeHtml(s) {
-        return String(s).replace(/[&<>"']/g, c => ({
+      function body(cat) {
+        if (cat.friday) return fridayBody(cat);
+        if (cat.kind === 'links') return linksBody(cat);
+        return filesBody(cat);
+      }
+
+      // 純連結分類（資源連結）：簡單卡片＋一句說明
+      function linksBody(cat) {
+        const links = cat.links || [];
+        if (!links.length) return emptyBox();
+        return `<div class="cards cards--grid">` + links.map(l => `
+          <a class="card" href="${esc(l.href)}" target="_blank" rel="noopener">
+            <div class="card-head">
+              <h3 class="card-title">${esc(l.title)}</h3>
+              <span class="card-meta">↗</span>
+            </div>
+            <p class="card-desc">${esc(l.desc)}</p>
+          </a>
+        `).join('') + `</div>`;
+      }
+
+      // 文章分類：Drive 拉下來的 HTML 文章；有 pageLink 的再加一張入口卡
+      function filesBody(cat) {
+        const feature = cat.pageLink ? `
+          <a class="card card--feature" href="${esc(cat.pageLink.href)}">
+            <div class="card-head">
+              <h3 class="card-title">${esc(cat.pageLink.label)}</h3>
+              <span class="card-meta">→</span>
+            </div>
+            <p class="card-desc">${esc(cat.pageLink.desc)}</p>
+          </a>` : '';
+        const items = cat.items.map(item => `
+          <a class="card" href="${urlFor(cat, item)}">
+            <div class="card-head">
+              <h3 class="card-title">${esc(item.title)}</h3>
+              <span class="card-meta">${esc(item.date)}${item.size ? ' · ' + esc(item.size) : ''}</span>
+            </div>
+            <p class="card-desc">${esc(item.desc)}</p>
+          </a>
+        `).join('');
+        if (!feature && !items) return emptyBox();
+        return `<div class="cards">${feature}${items}</div>`;
+      }
+
+      // 週五活動：季度說明＋一週一張卡片
+      function fridayBody(cat) {
+        const f = cat.friday;
+        const lede = `
+          <div class="fri-lede">
+            <p class="fri-when">${esc(f.when)}<span class="dot">·</span>${esc(f.where)}<span class="dot">·</span>${esc(f.span)}</p>
+            <p class="fri-theme">${esc(f.season)}主題：${esc(f.theme)}</p>
+            <p class="fri-intro">${esc(f.intro)}</p>
+            <p class="fri-closing">${esc(f.closing)}</p>
+          </div>`;
+        const weeks = (f.weeks || []).map(w => {
+          if (w.status) {
+            return `
+              <div class="card card--skip">
+                <div class="card-head">
+                  <h3 class="card-title"><span class="week-tag">${esc(w.week)}</span>　${esc(w.status)}</h3>
+                  <span class="card-meta">${esc(w.date || '')}</span>
+                </div>
+              </div>`;
+          }
+          return `
+            <div class="card">
+              <div class="card-head">
+                <h3 class="card-title"><span class="week-tag">${esc(w.week)}</span>　${esc(w.title)}</h3>
+                <span class="card-meta">${esc(w.date || '')}</span>
+              </div>
+              ${w.subtitle ? `<p class="week-sub">${esc(w.subtitle)}</p>` : ''}
+              ${w.lines && w.lines.length ? `<p class="week-poem">${esc(w.lines.join('\n'))}<span class="week-poem-src">——${esc(w.linesSource || '')}</span></p>` : ''}
+              ${w.closing ? `<p class="week-closing">${esc(w.closing)}</p>` : ''}
+              ${w.link ? `<a class="week-link" href="${esc(w.link)}" target="_blank" rel="noopener">${esc(w.linkLabel || '連結')} ↗</a>` : ''}
+            </div>`;
+        }).join('');
+        const files = cat.items.length ? filesBody(cat) : '';
+        return lede + `<div class="cards">${weeks}</div>` + files;
+      }
+
+      function emptyBox() {
+        return `<p class="empty">這一區的內容還在準備中。</p>`;
+      }
+
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
           '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
         }[c]));
       }
     })();
   </script>
+  <script src="js/tabs.js"></script>
   <script src="js/toolbar.js" defer></script>
 </body>
 </html>

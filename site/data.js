@@ -1,6 +1,15 @@
 // 人與社會｜教師社團 · 資料層
-// mirror of David Showcase data.js schema
-// 檔案實際 URL 以 BASE + folder + file 組成；renderer 會 encodeURI
+// 一個 CATEGORIES 陣列同時驅動：頁面上方的 Tab、每個 Tab 的內容面板、
+// 以及 scripts/build-index.js 的 Drive 同步。改分類只改這裡。
+//
+// 每個分類的欄位：
+//   id       穩定識別碼（網址 index.html?tab=<id> 用，永遠不要改）
+//   order    Tab 由左到右的固定順序（David 2026-08-27 指定，不再依日期自動排序）
+//   kind     'files' = 內容從 Drive 拉 HTML 文章；'links' = 純連結卡片，不碰 Drive
+//   folder   對應 Drive 上的子資料夾名（只有 kind:'files' 才有；沒有這個欄位
+//            build-index.js 就完全不會拿它去跟 Drive 比對）
+//   pageLink 這個分類另有一個獨立頁面時的入口（例：推薦書單 → booklist.html）
+//
 // META.totalItems / totalCategories 由 build 依實際內容重算，
 // 此處數字僅為本地預覽參考，不需手動維護
 
@@ -20,8 +29,28 @@ const META = {
 
 const CATEGORIES = [
   {
-    num: '04',
+    order: 1,
+    id: 'c01',
+    kind: 'files',
+    folder: '01_社團緣起',
+    title: '社團緣起',
+    subtitle: 'Where We Begin',
+    note: '人與社會工作小組的成立緣起與工作願景——由台灣社會出發，與世界建立連結，並把時代的脈動帶回教室課堂。',
+    accent: 'var(--hs-indigo)',
+    items: [
+      {
+        title: '從台灣出發，與世界建立連結——「人與社會」教師社團的成立願景',
+        date: '2026-07-12',
+        size: '',
+        desc: '人與社會工作小組的成立願景與 115–116 學年工作計畫。',
+        file: '2026-07-12_人與社會教師社團成立願景.html',
+      },
+    ],
+  },
+  {
+    order: 2,
     id: 'c04',
+    kind: 'files',
     folder: '04_工作會議',
     title: '工作會議',
     subtitle: 'Working Sessions',
@@ -38,8 +67,9 @@ const CATEGORIES = [
     ],
   },
   {
-    num: '03',
+    order: 3,
     id: 'c03',
+    kind: 'files',
     folder: '03_時代閱讀',
     title: '時代閱讀',
     subtitle: 'Reading the Times',
@@ -56,13 +86,19 @@ const CATEGORIES = [
     ],
   },
   {
-    num: '02',
+    order: 4,
     id: 'c02',
+    kind: 'files',
     folder: '02_推薦書單',
     title: '推薦書單',
     subtitle: 'Reading Together',
-    note: '社群共築的書架——推薦流程、使用方式與相關文章。書單本體在「推薦書單」頁。',
+    note: '社群共築的書架——每個人都可以為社群薦一本書。書單本體（含搜尋、分類篩選與推薦表單）在下方入口。',
     accent: 'var(--hs-indigo)',
+    pageLink: {
+      href: 'booklist.html',
+      label: '前往推薦書單',
+      desc: '社群共同推薦的書籍，附教育者摘要、分類與搜尋；登入後可以推薦你想分享的一本書。',
+    },
     items: [
       {
         title: '推薦書單，這樣用——每個人都能為社群薦一本書',
@@ -74,41 +110,104 @@ const CATEGORIES = [
     ],
   },
   {
-    num: '01',
-    id: 'c01',
-    folder: '01_社團緣起',
-    title: '社團緣起',
-    subtitle: 'Where We Begin',
-    note: '人與社會工作小組的成立緣起與工作願景——由台灣社會出發，與世界建立連結，並把時代的脈動帶回教室課堂。',
+    order: 5,
+    id: 'res',
+    kind: 'links',
+    // 刻意不給 folder：這一類只有連結卡片，build 不會拿它去跟 Drive 比對
+    title: '資源連結',
+    subtitle: 'Resources',
+    note: '備課與查證時用得上的幾個資料庫，都可以直接點進去用。',
     accent: 'var(--hs-indigo)',
-    items: [
+    links: [
       {
-        title: '從台灣出發，與世界建立連結——「人與社會」教師社團的成立願景',
-        date: '2026-07-12',
-        size: '',
-        desc: '人與社會工作小組的成立願景與 115–116 學年工作計畫。',
-        file: '2026-07-12_人與社會教師社團成立願景.html',
+        title: '臺灣人文藝術資料庫',
+        href: 'https://elliot200852-lab.github.io/taiwan-arts-db/',
+        desc: '臺灣的美術、音樂、文學、戲劇與工藝——人物、作品與流變，依主題整理，供備課取材。',
+      },
+      {
+        title: '認識臺灣地理資料庫',
+        href: 'https://elliot200852-lab.github.io/taiwan-geo-db/',
+        desc: '34 個縣市與 19 個主題頁：地形、氣候、產業、族群與交通，用地理的視角認識這座島。',
+      },
+      {
+        title: 'Taiwan.md',
+        href: 'https://taiwan.md/',
+        desc: '臺灣政府公開文件的全文檢索站——查政策、統計與官方說法時，可以直接回到原文出處。',
       },
     ],
+    items: [],
+  },
+  {
+    order: 6,
+    id: 'c05',
+    kind: 'files',
+    folder: '05_週五活動',
+    title: '週五活動',
+    subtitle: 'Friday Gatherings',
+    note: '每週五下午的臺灣議題探討與紀錄片觀賞——一週一場，一場一張卡片。',
+    accent: 'var(--hs-indigo)',
+    // friday：這一季的季度說明與每週場次卡片。
+    // 新增一週＝在 weeks 陣列最前面加一個物件（week／date／title／link／subtitle／
+    // lines／closing 都可省略，有才顯示）。文字一律照 David 原稿逐字放，不改寫。
+    friday: {
+      season: '秋季',
+      theme: '百年追求、自治之夢',
+      when: '每週五 14:00–15:00',
+      where: '紫藤樓 3 樓會議室',
+      span: '本季共十週',
+      intro: '我們會用短短的時間來認識你最親愛的陌生人-那許許多多以他們的心靈與生命編織成我們現在的人，一起來看，一起來聽，一起來感受，一起來思考與討論，就從了解台灣人的百年追求開始，等你來哦！',
+      closing: '讓我們不再作故鄉的異鄉人，WE CARE!',
+      weeks: [
+        {
+          week: '第三週',
+          date: '2026-09-04', // 依每週五推算，David 確認後可改
+          title: '進步時代－臺中文協百年的美術力 紀錄片',
+          link: 'https://youtu.be/ruuZubl8OAg',
+          linkLabel: '紀錄片連結',
+        },
+        {
+          week: '第二週',
+          date: '2026-08-28',
+          title: '文協百年紀錄片 EP1｜臺灣是臺灣人的臺灣',
+          link: 'https://youtu.be/7HMLdT9rXqg',
+          linkLabel: '紀錄片連結',
+          subtitle: '台灣轉大人：文化啟蒙',
+          lines: [
+            '蓬萊美島真可愛，',
+            '祖先基業在。',
+            '田園阮開  樹阮栽，',
+            '勞苦代過代。',
+            '著理解，著理解',
+            '阮是開拓者，',
+            '毋是憨奴才，',
+            '臺灣全島快自治，',
+            '公事阮掌正應該！',
+          ],
+          linesSource: '蔡培火〈臺灣自治歌〉',
+          closing: '不再作故鄉的異鄉人',
+        },
+        {
+          week: '第一週',
+          date: '2026-08-21',
+          status: '輪空',
+        },
+      ],
+    },
+    items: [],
   },
 ];
 
-// ---- Sort categories by their most recent upload, newest first ----
-// When a new item is added, its category jumps to position 01.
-// Tiebreaker: original folder order (deterministic).
+// ---- Tab 順序＝固定 order（不再依日期自動排序）----
+// 依日期排會讓 Tab 左右跳動，David 2026-08-27 指定固定順序。
+CATEGORIES.sort((a, b) => (a.order || 99) - (b.order || 99));
+
+// ---- 每個分類內部的文章仍依日期排序（新的在前）----
 CATEGORIES.forEach(cat => {
-  const dates = cat.items.map(i => i.date).filter(Boolean).sort();
-  cat.latestDate = dates.length ? dates[dates.length - 1] : '';
-});
-CATEGORIES.sort((a, b) => {
-  const d = (b.latestDate || '').localeCompare(a.latestDate || '');
-  if (d !== 0) return d;
-  return a.folder.localeCompare(b.folder);
+  cat.items.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  cat.latestDate = cat.items[0]?.date || '';
 });
 
-// ---- Reassign display numerals 01..NN based on new sort order ----
-// cat.id and cat.folder stay stable (URL + file-path stability);
-// only the displayed numeral updates.
+// ---- 顯示用編號＝Tab 順序 ----
 CATEGORIES.forEach((cat, i) => {
   cat.num = String(i + 1).padStart(2, '0');
 });

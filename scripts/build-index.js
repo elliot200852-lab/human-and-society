@@ -184,6 +184,9 @@ function mergeData(curated, driveData) {
   for (const f of driveData) driveByFolder.set(f.name, f.files);
 
   for (const cat of curated.CATEGORIES) {
+    // kind:'links'（純連結卡片，例：資源連結）沒有 folder —— 完全不參與 Drive 比對。
+    // 沒有這道防線的話，Drive 上若出現同名資料夾，檔案會被靜默塞進連結分類。
+    if (!cat.folder) continue;
     const driveFiles = driveByFolder.get(cat.folder);
     if (!driveFiles) {
       cat.items.forEach(it => report.missingFiles.push(`${cat.folder}/${it.file}`));
@@ -240,20 +243,16 @@ const META = ${JSON.stringify(curated.META, null, 2)};
 
 const CATEGORIES = ${JSON.stringify(curated.CATEGORIES, null, 2)};
 
+// ---- Tab 順序＝固定 order（與 site/data.js 一致；不依日期排序）----
+CATEGORIES.sort((a, b) => (a.order || 99) - (b.order || 99));
+
 // ---- Sort items within each category by date (newest first) ----
 CATEGORIES.forEach(cat => {
   cat.items.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   cat.latestDate = cat.items[0]?.date || '';
 });
 
-// ---- Sort categories by their most recent upload, newest first ----
-CATEGORIES.sort((a, b) => {
-  const d = (b.latestDate || '').localeCompare(a.latestDate || '');
-  if (d !== 0) return d;
-  return a.folder.localeCompare(b.folder);
-});
-
-// ---- Reassign display numerals 01..NN based on new sort order ----
+// ---- 顯示用編號＝Tab 順序 ----
 CATEGORIES.forEach((cat, i) => {
   cat.num = String(i + 1).padStart(2, '0');
 });
@@ -315,7 +314,7 @@ function copyStaticAssets() {
   // js/toolbar.js（index/category 以 <script src> 引用）＋ js/comments.js（文章頁注入）
   // ＋ js/booklist.js（推薦書單頁）＋ js/booklist-data.js（placeholder；CI 由 build-booklist.js 以 Firestore 資料覆蓋）
   fs.mkdirSync(path.join(OUTPUT_DIR, 'js'), { recursive: true });
-  for (const f of ['toolbar.js', 'comments.js', 'booklist.js', 'booklist-data.js']) {
+  for (const f of ['tabs.js', 'toolbar.js', 'comments.js', 'booklist.js', 'booklist-data.js']) {
     fs.copyFileSync(path.join(SITE_DIR, 'js', f), path.join(OUTPUT_DIR, 'js', f));
   }
   // css/comments.css（文章頁注入）＋ css/booklist.css（推薦書單頁）
@@ -393,6 +392,23 @@ function staticChecks() {
   // 留言 widget 靜態資產存在
   assert(fs.existsSync(path.join(SITE_DIR, 'js', 'comments.js')), 'site/js/comments.js 不存在');
   assert(fs.existsSync(path.join(SITE_DIR, 'css', 'comments.css')), 'site/css/comments.css 不存在');
+  // 分頁列：資產存在，且主頁與書單頁都有掛載點（少一個就整排 Tab 消失）
+  assert(fs.existsSync(path.join(SITE_DIR, 'js', 'tabs.js')), 'site/js/tabs.js 不存在');
+  for (const file of ['index.html', 'booklist.html']) {
+    const html = fs.readFileSync(path.join(SITE_DIR, file), 'utf8');
+    assert(/id="hsTabs"/.test(html), `${file} 缺少分頁列掛載點 #hsTabs`);
+    assert(/js\/tabs\.js/.test(html), `${file} 未載入 js/tabs.js`);
+  }
+  // 分類中繼資料：id 不重複、order 齊全、kind:'files' 一定要有 folder
+  const { CATEGORIES } = loadCuratedData();
+  const ids = new Set();
+  for (const cat of CATEGORIES) {
+    assert(cat.id && !ids.has(cat.id), `分類 id 重複或缺漏：${cat.id}`);
+    ids.add(cat.id);
+    assert(typeof cat.order === 'number', `分類 ${cat.id} 缺少 order（Tab 順序）`);
+    if (cat.kind !== 'links') assert(cat.folder, `分類 ${cat.id} 是 files 卻沒有 folder`);
+    if (cat.kind === 'links') assert(!cat.folder, `分類 ${cat.id} 是 links 不該有 folder`);
+  }
   console.log('Static checks passed.');
 }
 

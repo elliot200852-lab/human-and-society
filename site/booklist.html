@@ -17,6 +17,9 @@
       <p class="hs-bl-crumb">推薦書單</p>
     </header>
 
+    <!-- 與主頁同一排分頁（由 js/tabs.js 依 data.js 產生），點了連回 index.html?tab=… -->
+    <nav class="hs-tabs" id="hsTabs" data-mode="link" data-active="c02" aria-label="主題分頁"></nav>
+
     <header class="hs-bl-masthead">
       <p class="hs-bl-kicker">Ci-Xin Waldorf · Teacher Circle</p>
       <h1 class="hs-bl-title">推薦書單</h1>
@@ -62,6 +65,8 @@
     </footer>
   </div>
 
+  <script src="data.js"></script>
+  <script src="js/tabs.js"></script>
   <script src="js/booklist-data.js"></script>
   <script type="module" src="js/booklist.js"></script>
   <script src="js/toolbar.js" defer></script>

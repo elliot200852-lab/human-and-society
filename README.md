@@ -4,6 +4,9 @@
 
 - 預定網址：<https://elliot200852-lab.github.io/human-and-society/>
 - 架構：`site/` 靜態殼與可版本控公開文字；`scripts/` Drive-pull 建置；`output/` 為建置產物。
+- 導覽是主頁上方一排分頁（Tab），每個分頁有自己的網址 `index.html?tab=<id>`，可以單獨分享。
+  分頁清單、順序與內容全部由 `site/data.js` 的 `CATEGORIES` 一份資料驅動（`js/tabs.js` 產生分頁列）；
+  新增／調整分類只改 `data.js`。`category.html` 已改為轉址殼，只為了讓先前流出的舊連結仍打得開。
 - 圖片、PDF、影音、簡報、字型等二進位全部存 Google Drive，不進 repo。
 - Drive 根資料夾 ID 由 `HUMAN_AND_SOCIETY_DRIVE_FOLDER_ID` 提供；service account 使用 GitHub secret `GOOGLE_DRIVE_SA_KEY`。
 
