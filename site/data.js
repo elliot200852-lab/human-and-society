@@ -184,7 +184,6 @@ const CATEGORIES = [
             '公事阮掌正應該！',
           ],
           linesSource: '蔡培火〈臺灣自治歌〉',
-          closing: '不再作故鄉的異鄉人',
         },
         {
           week: '第一週',
