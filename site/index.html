@@ -338,6 +338,7 @@
       padding-bottom: 1px;
     }
     .week-link:hover { color: var(--hs-indigo-deep); border-bottom-color: var(--accent); }
+    .week-link + .week-link { margin-left: var(--sp-5); }
 
     /* ---- empty ---- */
     .empty {
@@ -557,6 +558,7 @@
               ${w.lines && w.lines.length ? `<p class="week-poem">${esc(w.lines.join('\n'))}<span class="week-poem-src">——${esc(w.linesSource || '')}</span></p>` : ''}
               ${w.closing ? `<p class="week-closing">${esc(w.closing)}</p>` : ''}
               ${w.link ? `<a class="week-link" href="${esc(w.link)}" target="_blank" rel="noopener">${esc(w.linkLabel || '連結')} ↗</a>` : ''}
+              ${w.notes ? `<a class="week-link" href="${urlFor(cat, w.notes)}">${esc(w.notes.label || '對話紀錄')} →</a>` : ''}
             </div>`;
         }).join('');
         const files = cat.items.length ? filesBody(cat) : '';
